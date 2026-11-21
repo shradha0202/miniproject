@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # VICTORY: A Web-Based Pharmaceutical Verification System Using QR Codes and Ed25519 Digital Signatures
 
 [![Technology Stack](https://img.shields.io/badge/Stack-React%20%7C%20Node.js%20%7C%20PostgreSQL%20%7C%20Ed25519-10b981.svg)](#technology-stack)
@@ -87,61 +86,81 @@ Develop a decentralized, high-security web application that allows consumers, ph
 ```
 VICTORY/
 ├── backend/
+│   ├── .env.example
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── tsconfig.json
 │   ├── src/
-│   │   ├── config/             # Environment & security configurations
-│   │   ├── controllers/        # Express request controllers (MVC)
-│   │   ├── database/           # PostgreSQL pool, migrate, and seed
-│   │   ├── middleware/         # JWT auth, RBAC, error handling, rate limiting
-│   │   ├── routes/             # REST route declarations
-│   │   ├── scripts/            # CLI utilities (init-admin, import-medicines, import-cdsco)
-│   │   ├── services/           # CryptoService (Ed25519), QrService, VerificationService
-│   │   ├── test/               # Automated integration test suite
-│   │   ├── types/              # TypeScript interfaces
-│   │   ├── validators/         # Zod input schemas
+│   │   ├── config/
+│   │   │   └── index.ts
+│   │   ├── controllers/        # API request handlers
+│   │   │   ├── admin.controller.ts
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── cdsco.controller.ts
+│   │   │   ├── manufacturer.controller.ts
+│   │   │   ├── medicine.controller.ts
+│   │   │   ├── report.controller.ts
+│   │   │   └── verification.controller.ts
+│   │   ├── database/           # PostgreSQL pool, migration, and seed
+│   │   │   ├── db.ts
+│   │   │   ├── migrate.ts
+│   │   │   └── seed.ts
+│   │   ├── middleware/         # Authentication, errors, and rate limiting
+│   │   ├── routes/             # REST API route declarations
+│   │   ├── scripts/            # Admin and data-import CLI utilities
+│   │   ├── services/           # Cryptography, QR generation, and verification
+│   │   ├── test/               # Backend test runner
+│   │   ├── types/              # Shared TypeScript types
+│   │   ├── validators/         # Request validation schemas
 │   │   ├── app.ts              # Express application setup
-│   │   └── server.ts           # Server bootstrap
-│   ├── .env                    # Environment variables
-│   ├── package.json
-│   └── tsconfig.json
-├── frontend/
-│   ├── src/
-│   │   ├── components/         # Navbar, Footer, Sidebar, QrScannerModal, VoiceAssistant, VerificationCard
-│   │   ├── context/            # AuthContext, LanguageContext
-│   │   ├── i18n/               # English (en.ts) & Kannada (kn.ts) translation dictionaries
-│   │   ├── pages/
-│   │   │   ├── admin/          # Dashboard, Manufacturers, Medicines, Batches, Reports, Alerts, Users
-│   │   │   ├── manufacturer/   # Dashboard, RegisterBatch, MyBatches, ManufacturerProfile
-│   │   │   ├── user/           # UserDashboard, ScanHistory, ReportMedicine
-│   │   │   ├── Home.tsx        # Homepage with Hero, How It Works, Features, QR Scanner
-│   │   │   ├── About.tsx
-│   │   │   ├── HowItWorks.tsx
-│   │   │   ├── VerifyMedicine.tsx # Public verification engine view
-│   │   │   └── Login.tsx / RegisterUser.tsx / RegisterManufacturer.tsx
-│   │   ├── services/           # Axios API client with token interceptors
-│   │   ├── App.tsx
-│   │   ├── main.tsx
-│   │   └── index.css           # Tailwind dark theme
-│   ├── package.json
-│   └── vite.config.ts
+│   │   └── server.ts           # HTTP server bootstrap
 ├── database/
-│   └── schema.sql              # Normalized PostgreSQL DDL schema with UUIDs & indexes
-├── sample-data/
-│   ├── medicines_template.csv  # CSV template for Admin imports
-│   ├── sample_medicines.csv    # Indian Pharma sample dataset
-│   └── sample_cdsco_alerts.csv # Real-world CDSCO NSQ alert sample records
-├── scripts/
-│   ├── import-medicine-dataset.ts
-│   ├── import-cdsco-alerts.ts
-│   └── init-admin.ts
+│   └── schema.sql              # PostgreSQL schema
 ├── docs/
 │   ├── API_DOCUMENTATION.md
 │   ├── DATABASE_DOCUMENTATION.md
 │   ├── SECURITY_DOCUMENTATION.md
 │   └── TESTING_DOCUMENTATION.md
-├── keys/                       # Local directory for Ed25519 private keys (mode 0o600, .gitignored)
-├── package.json                # Root automation scripts
-├── PROJECT_PROGRESS.md         # Full project execution tracker
-├── .env.example
+├── frontend/
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   └── src/
+│       ├── components/         # Shared UI components
+│       ├── context/            # Authentication and language state
+│       ├── i18n/               # English and Kannada translations
+│       ├── pages/
+│       │   ├── admin/          # Administrator portal
+│       │   ├── manufacturer/   # Manufacturer portal
+│       │   ├── user/           # Consumer portal
+│       │   ├── About.tsx
+│       │   ├── Home.tsx
+│       │   ├── HowItWorks.tsx
+│       │   ├── Login.tsx
+│       │   ├── RegisterManufacturer.tsx
+│       │   ├── RegisterUser.tsx
+│       │   └── VerifyMedicine.tsx
+│       ├── services/           # API client
+│       ├── App.tsx             # Routes and page layouts
+│       ├── index.css
+│       └── main.tsx            # Frontend entry point
+├── sample-data/
+│   ├── medicines_template.csv
+│   ├── sample_cdsco_alerts.csv
+│   └── sample_medicines.csv
+├── scripts/
+│   ├── import-cdsco-alerts.ts
+│   ├── import-medicine-dataset.ts
+│   └── init-admin.ts
+├── .env.example                # Root environment configuration template
+├── .gitignore
+├── package-lock.json
+├── package.json                # Root project scripts
+├── PROJECT_PROGRESS.md
 └── README.md
 ```
 
@@ -272,6 +291,3 @@ This software was engineered as a 2-credit academic mini-project demonstrating:
 - Role-based access control and security best practices
 - Multi-channel accessibility (voice and regional Indian language support)
 - Public health regulatory integration (CDSCO NSQ alerts)
-=======
-# victory
->>>>>>> e3b966d4de06a79c4b678eef2247a2662d4c8ee5

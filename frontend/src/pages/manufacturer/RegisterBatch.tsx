@@ -91,13 +91,37 @@ export const RegisterBatch: React.FC = () => {
     }
   };
 
-  const handleDownloadQr = () => {
-    if (!successData?.batch?.serial_id) return;
-    window.open(
-      `${api.defaults.baseURL}/manufacturer/batches/${successData.batch.serial_id}/qr`,
-      '_blank'
+ const handleDownloadQr = async () => {
+  if (!successData?.batch?.serial_id) return;
+
+  try {
+    const response = await api.get(
+      `/manufacturer/batches/${successData.batch.serial_id}/qr`,
+      {
+        responseType: 'blob',
+      }
     );
-  };
+
+    const blob = new Blob([response.data], {
+      type: 'image/png',
+    });
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `VICTORY-QR-${successData.batch.batch_number}.png`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    window.URL.revokeObjectURL(downloadUrl);
+  } catch (err) {
+    console.error('QR download failed:', err);
+    setError('Unable to download QR code. Please try again.');
+  }
+};
 
   if (manufacturer?.approval_status !== 'approved') {
     return (

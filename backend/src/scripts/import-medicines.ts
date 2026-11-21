@@ -4,75 +4,157 @@ import { parse } from 'csv-parse/sync';
 import { pool } from '../database/db';
 
 export const importMedicinesFromCsv = async (filePath?: string) => {
-  const targetPath = filePath || path.resolve(__dirname, '../../../sample-data/sample_medicines.csv');
+  const targetPath =
+    filePath ||
+    path.resolve(__dirname, '../../../sample-data/indian_pharma_converted.csv');
 
-  console.log(`[Import Medicines] Reading dataset from: ${targetPath}`);
+  console.log(`[Import Medicines] Reading dataset: ${targetPath}`);
 
   if (!fs.existsSync(targetPath)) {
-    throw new Error(`Medicines CSV file not found at: ${targetPath}`);
+    throw new Error(`CSV file not found: ${targetPath}`);
   }
 
   const fileContent = fs.readFileSync(targetPath, 'utf-8');
+
   const records: any[] = parse(fileContent, {
     columns: true,
     skip_empty_lines: true,
     trim: true,
   });
 
-  console.log(`[Import Medicines] Parsed ${records.length} records. Beginning database insertion...`);
+  console.log(`Total records found: ${records.length}`);
 
   const client = await pool.connect();
+
   let inserted = 0;
   let skipped = 0;
 
   try {
+    // Read existing records once to avoid repeated database queries.
+    const existing = await client.query(`
+      SELECT external_source_id, medicine_name, brand_name,
+             manufacturer_name, strength, dosage_form
+      FROM medicines
+    `);
+
+    const existingKeys = new Set<string>();
+
+    for (const row of existing.rows) {
+      if (row.external_source_id) {
+        existingKeys.add(`id:${row.external_source_id}`);
+      } else {
+        existingKeys.add(
+          `fallback:${[
+            row.medicine_name,
+            row.brand_name,
+            row.manufacturer_name,
+            row.strength,
+            row.dosage_form,
+          ].map(v => String(v || '').toLowerCase()).join('|')}`
+        );
+      }
+    }
+
+    const newRecords: any[][] = [];
+
     for (const row of records) {
-      const medicineName = row.medicine_name || row.name || row.drug_name;
+      const medicineName = row.medicine_name;
       if (!medicineName) {
         skipped++;
         continue;
       }
 
-      const brandName = row.brand_name || row.brand || null;
-      const manufacturer = row.manufacturer_name || row.manufacturer || null;
-      const composition = row.composition || row.salt_composition || null;
+      const brandName = row.brand_name || null;
+      const manufacturer = row.manufacturer_name || null;
+      const composition = row.composition || null;
       const strength = row.strength || null;
-      const dosageForm = row.dosage_form || row.type || null;
-      const therapeuticClass = row.therapeutic_class || row.category || null;
+      const dosageForm = row.dosage_form || null;
+      const therapeuticClass = row.therapeutic_class || null;
+      const externalId = row.id || null;
 
-      // Duplicate check based on name + strength + dosageForm
-      const dup = await client.query(
-        `SELECT id FROM medicines 
-         WHERE LOWER(medicine_name) = LOWER($1) 
-           AND COALESCE(LOWER(strength), '') = COALESCE(LOWER($2), '') 
-           AND COALESCE(LOWER(dosage_form), '') = COALESCE(LOWER($3), '')`,
-        [medicineName, strength || '', dosageForm || '']
-      );
+      const key = externalId
+        ? `id:${externalId}`
+        : `fallback:${[
+            medicineName,
+            brandName,
+            manufacturer,
+            strength,
+            dosageForm,
+          ].map(v => String(v || '').toLowerCase()).join('|')}`;
 
-      if (dup.rows.length > 0) {
+      if (existingKeys.has(key)) {
         skipped++;
         continue;
       }
 
-      await client.query(
-        `INSERT INTO medicines (
-          medicine_name, brand_name, manufacturer_name, composition, strength, dosage_form, therapeutic_class, source, external_source_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'indian_pharma_dataset', $8)`,
-        [
-          medicineName,
-          brandName,
-          manufacturer,
-          composition,
-          strength,
-          dosageForm,
-          therapeuticClass,
-          row.id || row.external_id || null,
-        ]
-      );
-      inserted++;
+      existingKeys.add(key);
+
+      newRecords.push([
+        medicineName,
+        brandName,
+        manufacturer,
+        composition,
+        strength,
+        dosageForm,
+        therapeuticClass,
+        externalId,
+      ]);
     }
 
-    console.log(`[Import Medicines] Finished: Inserted ${inserted} new catalogue entries, skipped ${skipped} duplicate/invalid entries.`);
+    console.log(`New records to insert: ${newRecords.length}`);
+    console.log(`Duplicate/invalid records skipped: ${skipped}`);
+
+    // Insert records in batches of 500.
+    const batchSize = 500;
+
+    for (let i = 0; i < newRecords.length; i += batchSize) {
+      const batch = newRecords.slice(i, i + batchSize);
+      const values: any[] = [];
+
+      const placeholders = batch.map((row, index) => {
+        const offset = index * 8;
+
+        values.push(...row);
+
+        return `(
+          $${offset + 1},
+          $${offset + 2},
+          $${offset + 3},
+          $${offset + 4},
+          $${offset + 5},
+          $${offset + 6},
+          $${offset + 7},
+          'indian_pharma_dataset',
+          $${offset + 8}
+        )`;
+      });
+
+      await client.query(
+        `INSERT INTO medicines (
+          medicine_name,
+          brand_name,
+          manufacturer_name,
+          composition,
+          strength,
+          dosage_form,
+          therapeutic_class,
+          source,
+          external_source_id
+        ) VALUES ${placeholders.join(',')}`,
+        values
+      );
+
+      inserted += batch.length;
+
+      console.log(
+        `Progress: ${inserted} / ${newRecords.length} records inserted`
+      );
+    }
+
+    console.log('Medicine dataset import completed!');
+    console.log(`Inserted: ${inserted}`);
+    console.log(`Skipped: ${skipped}`);
+
   } finally {
     client.release();
   }
@@ -80,10 +162,12 @@ export const importMedicinesFromCsv = async (filePath?: string) => {
 
 if (require.main === module) {
   const customPath = process.argv[2];
+
   importMedicinesFromCsv(customPath)
-    .then(() => process.exit(0))
-    .catch((err) => {
+    .then(() => pool.end())
+    .catch(async (err) => {
       console.error('[Import Medicines Error]', err);
+      await pool.end();
       process.exit(1);
     });
 }
