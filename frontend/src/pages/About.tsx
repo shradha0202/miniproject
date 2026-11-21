@@ -13,7 +13,7 @@ export const About: React.FC = () => {
           Academic Mini-Project (2 Credits)
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-          About VICTORY
+          About MEDISCAN
         </h1>
         <p className="text-base text-neutral-400 max-w-3xl leading-relaxed">
           A Web-Based Pharmaceutical Verification System Using QR Codes and Ed25519 Digital Signatures, developed under the Department of Information Science and Engineering.

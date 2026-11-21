@@ -110,7 +110,7 @@ export const RegisterBatch: React.FC = () => {
 
     const link = document.createElement('a');
     link.href = downloadUrl;
-    link.download = `VICTORY-QR-${successData.batch.batch_number}.png`;
+    link.download = `MEDISCAN-QR-${successData.batch.batch_number}.png`;
 
     document.body.appendChild(link);
     link.click();

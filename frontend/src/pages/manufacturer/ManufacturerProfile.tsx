@@ -32,7 +32,7 @@ export const ManufacturerProfile: React.FC = () => {
           <span>Manufacturer Enterprise Profile</span>
         </h1>
         <p className="text-xs text-neutral-400">
-          Official regulatory licensing details and contact information registered with VICTORY.
+          Official regulatory licensing details and contact information registered with MEDISCAN.
         </p>
       </div>
 

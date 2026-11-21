@@ -31,7 +31,7 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              <span className="text-lg font-black text-white tracking-wider">VICTORY</span>
+              <span className="text-lg font-black text-white tracking-wider">MEDISCAN</span>
             </div>
             <p className="text-xs text-neutral-400 leading-relaxed">
               A Web-Based Pharmaceutical Verification System Using QR Codes and Ed25519 Digital Signatures.
@@ -46,7 +46,7 @@ export const Footer: React.FC = () => {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-white mb-3">Navigation</h4>
             <ul className="space-y-2 text-xs">
               <li><Link to="/" className="hover:text-emerald-400 transition-colors">Home</Link></li>
-              <li><Link to="/about" className="hover:text-emerald-400 transition-colors">About VICTORY</Link></li>
+              <li><Link to="/about" className="hover:text-emerald-400 transition-colors">About MEDISCAN</Link></li>
               <li><Link to="/how-it-works" className="hover:text-emerald-400 transition-colors">How It Works</Link></li>
               <li><Link to="/verify" className="hover:text-emerald-400 transition-colors">Verify Medicine</Link></li>
             </ul>
@@ -95,7 +95,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t border-neutral-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400">
-          <p>© {new Date().getFullYear()} VICTORY Pharmaceutical Security Platform. Academic Project.</p>
+          <p>© {new Date().getFullYear()} MEDISCAN Pharmaceutical Security Platform. Academic Project.</p>
           <p>Built with React, Node.js, PostgreSQL, and Ed25519 Cryptography.</p>
         </div>
       </div>

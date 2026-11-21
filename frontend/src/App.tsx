@@ -42,7 +42,7 @@ const ProtectedLayout: React.FC<{ allowedRoles?: string[] }> = ({ allowedRoles }
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-emerald-400 text-sm">
-        Loading VICTORY session...
+        Loading MEDISCAN session...
       </div>
     );
   }

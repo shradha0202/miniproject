@@ -37,13 +37,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('victory_token'));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('mediscan_token'));
   const [user, setUser] = useState<UserProfile | null>(() => {
-    const saved = localStorage.getItem('victory_user');
+    const saved = localStorage.getItem('mediscan_user');
     return saved ? JSON.parse(saved) : null;
   });
   const [manufacturer, setManufacturer] = useState<ManufacturerProfile | null>(() => {
-    const saved = localStorage.getItem('victory_mfg');
+    const saved = localStorage.getItem('mediscan_mfg');
     return saved ? JSON.parse(saved) : null;
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -52,12 +52,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(newToken);
     setUser(newUser);
     setManufacturer(newMfg || null);
-    localStorage.setItem('victory_token', newToken);
-    localStorage.setItem('victory_user', JSON.stringify(newUser));
+    localStorage.setItem('mediscan_token', newToken);
+    localStorage.setItem('mediscan_user', JSON.stringify(newUser));
     if (newMfg) {
-      localStorage.setItem('victory_mfg', JSON.stringify(newMfg));
+      localStorage.setItem('mediscan_mfg', JSON.stringify(newMfg));
     } else {
-      localStorage.removeItem('victory_mfg');
+      localStorage.removeItem('mediscan_mfg');
     }
   };
 
@@ -65,9 +65,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(null);
     setUser(null);
     setManufacturer(null);
-    localStorage.removeItem('victory_token');
-    localStorage.removeItem('victory_user');
-    localStorage.removeItem('victory_mfg');
+    localStorage.removeItem('mediscan_token');
+    localStorage.removeItem('mediscan_user');
+    localStorage.removeItem('mediscan_mfg');
   };
 
   const refreshProfile = async () => {
@@ -79,10 +79,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await api.get('/auth/me');
       if (res.data.success) {
         setUser(res.data.data.user);
-        localStorage.setItem('victory_user', JSON.stringify(res.data.data.user));
+        localStorage.setItem('mediscan_user', JSON.stringify(res.data.data.user));
         if (res.data.data.manufacturer) {
           setManufacturer(res.data.data.manufacturer);
-          localStorage.setItem('victory_mfg', JSON.stringify(res.data.data.manufacturer));
+          localStorage.setItem('mediscan_mfg', JSON.stringify(res.data.data.manufacturer));
         }
       }
     } catch (err) {

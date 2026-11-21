@@ -12,7 +12,7 @@ export const api = axios.create({
 // Request interceptor to attach JWT token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('victory_token');
+    const token = localStorage.getItem('mediscan_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,8 +29,8 @@ api.interceptors.response.use(
       // If unauthorized, clear token if expired
       const currentPath = window.location.pathname;
       if (!currentPath.includes('/login') && !currentPath.includes('/verify')) {
-        localStorage.removeItem('victory_token');
-        localStorage.removeItem('victory_user');
+        localStorage.removeItem('mediscan_token');
+        localStorage.removeItem('mediscan_user');
       }
     }
     return Promise.reject(error);

@@ -152,14 +152,14 @@ export const Home: React.FC = () => {
                 {t.common.securityDisclaimer}
               </p>
               <p className="text-xs text-neutral-400 pt-1 leading-relaxed">
-                VICTORY provides zero-trust cryptographic origin proof, tamper detection, duplicate scan frequency tracking, and regulatory cross-checks with CDSCO alerts to safeguard patient health.
+                MEDISCAN provides zero-trust cryptographic origin proof, tamper detection, duplicate scan frequency tracking, and regulatory cross-checks with CDSCO alerts to safeguard patient health.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. ABOUT VICTORY */}
+      {/* 3. ABOUT MEDISCAN */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-5">
@@ -173,7 +173,7 @@ export const Home: React.FC = () => {
               According to the World Health Organization (WHO), substandard and falsified medical products affect millions of patients globally. Traditional barcodes and packaging holograms can be easily photographed, reprinted, and forged.
             </p>
             <p className="text-sm text-neutral-400 leading-relaxed">
-              VICTORY implements asymmetric <strong className="text-white">Ed25519 digital signatures</strong> over deterministic canonical batch records. Each manufacturer registers unique cryptographic key pairs, and every medicine package carries a digitally signed serial token that can be independently verified on any smartphone browser in seconds.
+              MEDISCAN implements asymmetric <strong className="text-white">Ed25519 digital signatures</strong> over deterministic canonical batch records. Each manufacturer registers unique cryptographic key pairs, and every medicine package carries a digitally signed serial token that can be independently verified on any smartphone browser in seconds.
             </p>
             <div className="pt-2 flex items-center gap-6 text-xs text-neutral-300">
               <div className="flex items-center gap-2">
@@ -227,7 +227,7 @@ export const Home: React.FC = () => {
             {t.nav.howItWorks}
           </span>
           <h2 className="text-3xl font-black text-white tracking-tight">
-            How The VICTORY Verification System Works
+            How The MEDISCAN Verification System Works
           </h2>
           <p className="text-sm text-neutral-400 max-w-xl mx-auto">
             A seamless four-step verification loop connecting pharmaceutical regulators, manufacturers, and patients.

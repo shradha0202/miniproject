@@ -37,7 +37,7 @@ export const Navbar: React.FC = () => {
               </div>
             </div>
             <div>
-              <span className="text-xl font-black tracking-wider text-white">VICTORY</span>
+              <span className="text-xl font-black tracking-wider text-white">MEDISCAN</span>
               <span className="hidden sm:inline-block ml-2 text-[10px] font-semibold uppercase tracking-widest text-emerald-400/90 border border-emerald-500/20 px-1.5 py-0.5 rounded">
                 Ed25519 Secured
               </span>
@@ -113,12 +113,6 @@ export const Navbar: React.FC = () => {
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>{t.common.login}</span>
-                </Link>
-                <Link
-                  to="/register"
-                  className="px-3 py-1.5 text-xs font-semibold text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/10 rounded-lg transition-colors"
-                >
-                  {t.common.register}
                 </Link>
               </div>
             )}
@@ -200,13 +194,6 @@ export const Navbar: React.FC = () => {
                   className="flex-1 text-center py-2 text-xs font-semibold bg-neutral-900 border border-neutral-800 rounded-lg text-white"
                 >
                   {t.common.login}
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex-1 text-center py-2 text-xs font-semibold bg-emerald-600 text-black rounded-lg"
-                >
-                  {t.common.register}
                 </Link>
               </div>
             )}

@@ -1,7 +1,7 @@
 {
-  "name": "victory-pharma-platform",
+  "name": "Mediscan-pharma-platform",
   "version": "1.0.0",
-  "description": "VICTORY: A Web-Based Pharmaceutical Verification System Using QR Codes and Ed25519 Digital Signatures",
+  "description": "Mediscan: A Web-Based Pharmaceutical Verification System Using QR Codes and Ed25519 Digital Signatures",
   "scripts": {
     "start:backend": "cd backend && npm run build && npm start",
     "dev:backend": "cd backend && npm run dev",

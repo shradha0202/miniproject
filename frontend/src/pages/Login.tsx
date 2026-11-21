@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
+import { Lock, Mail, AlertCircle, Loader2, ShieldCheck, UserRound, Factory, MonitorCog, ArrowRight } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -14,6 +14,32 @@ export const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<'user' | 'manufacturer' | 'admin' | null>(null);
+
+  const portals = [
+    {
+      role: 'user' as const,
+      title: 'Citizen Portal',
+      description: 'Verify medicines, view scan history, and report suspicious products',
+      icon: UserRound,
+      registrationPath: '/register',
+      registrationLabel: 'Create citizen account',
+    },
+    {
+      role: 'manufacturer' as const,
+      title: 'Manufacturer Portal',
+      description: 'Manage batches, generate QR codes, and maintain company details',
+      icon: Factory,
+      registrationPath: '/register-manufacturer',
+      registrationLabel: 'Register manufacturer',
+    },
+    {
+      role: 'admin' as const,
+      title: 'Admin Portal',
+      description: 'Manage users, approve manufacturers, and oversee system operations',
+      icon: MonitorCog,
+    },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,13 +72,59 @@ export const Login: React.FC = () => {
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-12">
+      {!selectedRole ? (
+        <div className="w-full max-w-6xl space-y-8">
+          <div className="text-center space-y-3">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Welcome to MEDISCAN</h1>
+            <p className="text-sm text-neutral-400">Select your portal to continue</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {portals.map((portal) => {
+              const Icon = portal.icon;
+              return (
+                <button
+                  key={portal.role}
+                  type="button"
+                  onClick={() => setSelectedRole(portal.role)}
+                  className="group p-7 rounded-2xl bg-neutral-900 border border-neutral-800 text-center shadow-xl hover:border-emerald-500/50 hover:-translate-y-1 transition-all"
+                >
+                  <div className="w-14 h-14 mx-auto mb-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-black transition-colors">
+                    <Icon className="w-7 h-7" />
+                  </div>
+                  <h2 className="text-xl font-black text-white">{portal.title}</h2>
+                  <p className="mt-3 min-h-[48px] text-sm leading-relaxed text-neutral-400">{portal.description}</p>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-emerald-400">
+                    Continue
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
       <div className="w-full max-w-md p-8 rounded-2xl bg-neutral-900 border border-neutral-800 shadow-2xl space-y-6">
         <div className="text-center space-y-2">
           <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <ShieldCheck className="w-6 h-6" />
+            {selectedRole === 'manufacturer' ? <Factory className="w-6 h-6" /> : selectedRole === 'admin' ? <MonitorCog className="w-6 h-6" /> : <UserRound className="w-6 h-6" />}
           </div>
-          <h2 className="text-2xl font-black text-white tracking-tight">Access VICTORY</h2>
-          <p className="text-xs text-neutral-400">Sign in to your regulatory, manufacturer, or citizen account</p>
+          <h2 className="text-2xl font-black text-white tracking-tight">
+            {selectedRole === 'manufacturer' ? 'Manufacturer Sign In' : selectedRole === 'admin' ? 'Admin Sign In' : 'Citizen Sign In'}
+          </h2>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedRole(null);
+              setError(null);
+            }}
+            className="text-xs text-emerald-400 hover:underline"
+          >
+            Change portal
+          </button>
         </div>
 
         {error && (
@@ -106,18 +178,17 @@ export const Login: React.FC = () => {
         </form>
 
         <div className="pt-4 border-t border-neutral-800/80 text-center space-y-2 text-xs text-neutral-400">
-          <p>
-            New citizen user?{' '}
-            <Link to="/register" className="text-emerald-400 hover:underline font-semibold">
-              Create an account
-            </Link>
-          </p>
-          <p>
-            Pharmaceutical manufacturer?{' '}
-            <Link to="/register-manufacturer" className="text-emerald-400 hover:underline font-semibold">
-              Register company
-            </Link>
-          </p>
+          {selectedRole !== 'admin' && (
+            <p>
+              {selectedRole === 'manufacturer' ? 'New pharmaceutical manufacturer?' : 'New citizen user?'}{' '}
+              <Link
+                to={selectedRole === 'manufacturer' ? '/register-manufacturer' : '/register'}
+                className="text-emerald-400 hover:underline font-semibold"
+              >
+                {selectedRole === 'manufacturer' ? 'Register company' : 'Create an account'}
+              </Link>
+            </p>
+          )}
         </div>
 
         {/* Development Seed Accounts Helper Pill */}
@@ -125,7 +196,7 @@ export const Login: React.FC = () => {
           <p className="font-semibold text-neutral-300">Default Test Accounts:</p>
           <div className="flex justify-between text-neutral-400">
             <span>Admin:</span>
-            <code className="text-emerald-400">admin@victory.pharma / Admin@12345</code>
+            <code className="text-emerald-400">admin@mediscan.pharma / Admin@12345</code>
           </div>
           <div className="flex justify-between text-neutral-400">
             <span>Manufacturer:</span>
@@ -137,6 +208,7 @@ export const Login: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

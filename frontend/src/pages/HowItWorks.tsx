@@ -25,7 +25,7 @@ export const HowItWorks: React.FC = () => {
           How Verification Works
         </h1>
         <p className="text-sm text-neutral-400 max-w-2xl leading-relaxed">
-          From the pharmaceutical manufacturing facility to the patient's hands: understanding the cryptographic journey of a VICTORY medicine package.
+          From the pharmaceutical manufacturing facility to the patient's hands: understanding the cryptographic journey of a MEDISCAN medicine package.
         </p>
       </div>
 
@@ -69,7 +69,7 @@ export const HowItWorks: React.FC = () => {
               <span>Deterministic Canonicalization & Digital Signing</span>
             </h3>
             <p className="text-xs text-neutral-400 leading-relaxed">
-              When a batch is produced, the manufacturer registers the batch number, manufacturing date, and expiry date. VICTORY converts this data into a deterministic canonical JSON string and signs it with the manufacturer's Ed25519 private key. The resulting digital signature is linked to a unique UUID serial ID.
+              When a batch is produced, the manufacturer registers the batch number, manufacturing date, and expiry date. MEDISCAN converts this data into a deterministic canonical JSON string and signs it with the manufacturer's Ed25519 private key. The resulting digital signature is linked to a unique UUID serial ID.
             </p>
           </div>
         </div>

@@ -1,6 +1,6 @@
 export const en = {
   common: {
-    appName: 'VICTORY',
+    appName: 'MEDISCAN',
     appSubTitle: 'Pharmaceutical Verification Platform',
     verifyMedicine: 'Verify Medicine',
     login: 'Login',

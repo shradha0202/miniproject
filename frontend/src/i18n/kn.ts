@@ -1,6 +1,6 @@
 export const kn = {
   common: {
-    appName: 'ವಿಕ್ಟರಿ (VICTORY)',
+    appName: 'ಮೆಡಿಸ್ಕಾನ್ (MEDISCAN)',
     appSubTitle: 'ಔಷಧ ಪರಿಶೀಲನಾ ವೇದಿಕೆ',
     verifyMedicine: 'ಔಷಧ ಪರಿಶೀಲಿಸಿ',
     login: 'ಲಾಗಿನ್',
