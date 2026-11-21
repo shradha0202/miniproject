@@ -49,10 +49,10 @@ export const Sidebar: React.FC = () => {
   const links = user.role === 'admin' ? adminLinks : user.role === 'manufacturer' ? mfgLinks : userLinks;
 
   return (
-    <aside className="w-64 shrink-0 bg-neutral-950 border-r border-neutral-800/80 min-h-[calc(100vh-4rem)] flex flex-col justify-between p-4">
+    <aside className="dashboard-sidebar w-64 shrink-0 bg-neutral-950 border-r border-neutral-800/80 min-h-[calc(100vh-4rem)] flex flex-col justify-between p-4">
       <div className="space-y-6">
         {/* User Card */}
-        <div className="p-3.5 rounded-xl bg-neutral-900 border border-neutral-800">
+        <div className="dashboard-user-card p-3.5 rounded-xl bg-neutral-900 border border-neutral-800">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-sm">
               {user.full_name.charAt(0).toUpperCase()}
@@ -77,7 +77,7 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Navigation Links */}
-        <nav className="space-y-1">
+        <nav className="dashboard-sidebar-nav space-y-1">
           {links.map((link) => {
             const Icon = link.icon;
             return (
@@ -102,7 +102,7 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* Logout button */}
-      <div className="pt-4 border-t border-neutral-800">
+      <div className="dashboard-sidebar-logout pt-4 border-t border-neutral-800">
         <button
           onClick={logout}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-rose-400 hover:bg-rose-950/30 transition-colors"

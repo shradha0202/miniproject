@@ -143,8 +143,8 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl flex flex-col">
+    <div className="qr-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
+      <div className="qr-modal-panel relative w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
           <div className="flex items-center gap-2.5">
@@ -170,7 +170,7 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
         {/* Video / Camera view */}
         <div className="my-4">
           {!hasCameraError ? (
-            <div className="relative w-full aspect-square max-h-72 bg-black rounded-xl overflow-hidden border border-neutral-800 flex items-center justify-center">
+            <div className="qr-camera-preview relative w-full aspect-square max-h-72 bg-black rounded-xl overflow-hidden border border-neutral-800 flex items-center justify-center">
               <video
                 ref={videoRef}
                 className="w-full h-full object-cover"
@@ -214,15 +214,15 @@ export const QrScannerModal: React.FC<QrScannerModalProps> = ({
             />
           </div>
 
-          <form onSubmit={handleManualSubmit} className="flex gap-2">
-            <div className="relative flex-1">
+          <form onSubmit={handleManualSubmit} className="flex min-w-0 gap-2">
+            <div className="relative flex-1 min-w-0">
               <KeyRound className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
               <input
                 type="text"
                 value={manualSerialId}
                 onChange={(e) => setManualSerialId(e.target.value)}
                 placeholder="Enter Serial UUID or URL..."
-                className="w-full pl-9 pr-3 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full min-w-0 pl-9 pr-3 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-sm text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition-colors"
               />
             </div>
             <button

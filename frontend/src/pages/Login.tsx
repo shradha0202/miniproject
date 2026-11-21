@@ -194,17 +194,17 @@ export const Login: React.FC = () => {
         {/* Development Seed Accounts Helper Pill */}
         <div className="p-3 rounded-lg bg-[#f7faf5] border border-[#e1e8dc] text-[11px] text-[#667267] space-y-1">
           <p className="font-semibold text-[#536057]">Default Test Accounts:</p>
-          <div className="flex justify-between text-[#667267]">
+          <div className="login-seed-row flex justify-between text-[#667267]">
             <span>Admin:</span>
-            <code className="text-emerald-400">admin@mediscan.pharma / Admin@12345</code>
+            <code className="login-seed-code text-emerald-400">admin@mediscan.pharma / Admin@12345</code>
           </div>
-          <div className="flex justify-between text-[#667267]">
+          <div className="login-seed-row flex justify-between text-[#667267]">
             <span>Manufacturer:</span>
-            <code className="text-emerald-400">mfg@cipla.com / Mfg@12345</code>
+            <code className="login-seed-code text-emerald-400">mfg@cipla.com / Mfg@12345</code>
           </div>
-          <div className="flex justify-between text-[#667267]">
+          <div className="login-seed-row flex justify-between text-[#667267]">
             <span>Citizen:</span>
-            <code className="text-emerald-400">user@example.com / User@12345</code>
+            <code className="login-seed-code text-emerald-400">user@example.com / User@12345</code>
           </div>
         </div>
       </div>

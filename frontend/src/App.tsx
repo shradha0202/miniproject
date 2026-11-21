@@ -56,11 +56,11 @@ const ProtectedLayout: React.FC<{ allowedRoles?: string[] }> = ({ allowedRoles }
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="dashboard-shell flex flex-col min-h-screen bg-white">
       <Navbar />
-      <div className="flex flex-1">
+      <div className="dashboard-layout flex flex-1 min-w-0">
         <Sidebar />
-        <main className="flex-1 p-6 sm:p-8 max-w-7xl overflow-y-auto">
+        <main className="dashboard-main flex-1 min-w-0 p-6 sm:p-8 max-w-7xl overflow-y-auto">
           <Outlet />
         </main>
       </div>

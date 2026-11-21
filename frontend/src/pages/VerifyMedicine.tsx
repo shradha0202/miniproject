@@ -90,15 +90,15 @@ export const VerifyMedicine: React.FC = () => {
           <span>Scan QR</span>
         </button>
 
-        <form onSubmit={handleSubmit} className="w-full flex items-center gap-2">
-          <div className="relative flex-1">
+        <form onSubmit={handleSubmit} className="w-full min-w-0 flex items-center gap-2">
+          <div className="relative flex-1 min-w-0">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500" />
             <input
               type="text"
               value={inputSerial}
               onChange={(e) => setInputSerial(e.target.value)}
               placeholder="Paste Serial ID (e.g. 47ff01a4-4ad6-4792-91fd-196b00bd15e8)..."
-              className="w-full pl-10 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-emerald-500 font-mono transition-colors"
+              className="w-full min-w-0 pl-10 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-emerald-500 font-mono transition-colors"
             />
           </div>
           <button
