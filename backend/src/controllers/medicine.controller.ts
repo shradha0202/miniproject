@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 import { parse } from 'csv-parse/sync';
 import { query } from '../database/db';
@@ -5,48 +6,78 @@ import { createMedicineSchema } from '../validators';
 
 export class MedicineController {
   /**
-   * Search / List Medicines (Accessible to Admin, Manufacturer, and Public)
+   * Search / List Medicines
+   * Accessible to Admin, Manufacturer, and Public.
+   * Supports filtering and pagination.
    */
   public static async listMedicines(req: Request, res: Response): Promise<void> {
     try {
-      const { search, dosage_form, source, active_only, page = 1, limit = 50 } = req.query;
-      const offset = (Number(page) - 1) * Number(limit);
+      const {
+        search,
+        dosage_form,
+        source,
+        active_only,
+      } = req.query;
 
-      let queryText = 'SELECT * FROM medicines WHERE 1=1';
+      // Validate pagination parameters
+      const page = Math.max(1, Number.parseInt(String(req.query.page || '1'), 10) || 1);
+      const requestedLimit = Number.parseInt(String(req.query.limit || '50'), 10) || 50;
+      const limit = Math.min(200, Math.max(1, requestedLimit));
+      const offset = (page - 1) * limit;
+
+      let whereClause = 'WHERE 1=1';
       const params: any[] = [];
 
+      // By default, return only active medicines.
+      // Pass active_only=false to include inactive medicines.
       if (active_only !== 'false') {
-        queryText += ' AND is_active = true';
+        whereClause += ' AND is_active = true';
       }
 
-      if (dosage_form && typeof dosage_form === 'string') {
-        params.push(dosage_form);
-        queryText += ` AND dosage_form ILIKE $${params.length}`;
+      // Filter by dosage form
+      if (typeof dosage_form === 'string' && dosage_form.trim()) {
+        params.push(`%${dosage_form.trim()}%`);
+        whereClause += ` AND dosage_form ILIKE $${params.length}`;
       }
 
-      if (source && typeof source === 'string') {
-        params.push(source);
-        queryText += ` AND source = $${params.length}`;
+      // Filter by source
+      if (typeof source === 'string' && source.trim()) {
+        params.push(source.trim());
+        whereClause += ` AND source = $${params.length}`;
       }
 
-      if (search && typeof search === 'string') {
-        params.push(`%${search}%`);
-        queryText += ` AND (
-          medicine_name ILIKE $${params.length} 
-          OR brand_name ILIKE $${params.length} 
+      // Search by medicine name, brand, composition, or manufacturer
+      if (typeof search === 'string' && search.trim()) {
+        params.push(`%${search.trim()}%`);
+
+        whereClause += ` AND (
+          medicine_name ILIKE $${params.length}
+          OR brand_name ILIKE $${params.length}
           OR composition ILIKE $${params.length}
           OR manufacturer_name ILIKE $${params.length}
         )`;
       }
 
-      // Count query
-      const countRes = await query(`SELECT COUNT(*) as total FROM (${queryText}) as filtered`, params);
-      const total = parseInt(countRes.rows[0].total, 10);
+      // Get total number of matching medicines
+      const countResult = await query(
+        `SELECT COUNT(*) AS total FROM medicines ${whereClause}`,
+        params
+      );
 
-      queryText += ` ORDER BY medicine_name ASC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-      params.push(Number(limit), offset);
+      const total = Number.parseInt(countResult.rows[0].total, 10) || 0;
 
-      const result = await query(queryText, params);
+      // Fetch medicines for the requested page
+      const dataParams = [...params, limit, offset];
+
+      const result = await query(
+        `SELECT *
+         FROM medicines
+         ${whereClause}
+         ORDER BY medicine_name ASC
+         LIMIT $${params.length + 1}
+         OFFSET $${params.length + 2}`,
+        dataParams
+      );
 
       res.status(200).json({
         success: true,
@@ -54,33 +85,51 @@ export class MedicineController {
           items: result.rows,
           pagination: {
             total,
-            page: Number(page),
-            limit: Number(limit),
-            pages: Math.ceil(total / Number(limit)),
+            page,
+            limit,
+            pages: Math.ceil(total / limit),
           },
         },
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message || 'Failed to list medicines.' });
+      console.error('[MedicineController] List medicines error:', err);
+
+      res.status(500).json({
+        success: false,
+        error: err.message || 'Failed to list medicines.',
+      });
     }
   }
 
   /**
-   * Get single medicine by ID
+   * Get a single medicine by ID
    */
   public static async getMedicineById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      const result = await query('SELECT * FROM medicines WHERE id = $1', [id]);
+
+      const result = await query(
+        'SELECT * FROM medicines WHERE id = $1',
+        [id]
+      );
 
       if (result.rows.length === 0) {
-        res.status(404).json({ success: false, error: 'Medicine not found.' });
+        res.status(404).json({
+          success: false,
+          error: 'Medicine not found.',
+        });
         return;
       }
 
-      res.status(200).json({ success: true, data: result.rows[0] });
+      res.status(200).json({
+        success: true,
+        data: result.rows[0],
+      });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message || 'Failed to fetch medicine.' });
+      res.status(500).json({
+        success: false,
+        error: err.message || 'Failed to fetch medicine.',
+      });
     }
   }
 
@@ -91,13 +140,18 @@ export class MedicineController {
     try {
       const validated = createMedicineSchema.parse(req.body);
 
-      // Check duplicate
+      // Check for duplicate medicine
       const dupCheck = await query(
-        `SELECT id FROM medicines 
-         WHERE LOWER(medicine_name) = LOWER($1) 
-           AND COALESCE(LOWER(strength), '') = COALESCE(LOWER($2), '') 
-           AND COALESCE(LOWER(dosage_form), '') = COALESCE(LOWER($3), '')`,
-        [validated.medicine_name, validated.strength || '', validated.dosage_form || '']
+        `SELECT id
+         FROM medicines
+         WHERE LOWER(medicine_name) = LOWER($1)
+         AND COALESCE(LOWER(strength), '') = COALESCE(LOWER($2), '')
+         AND COALESCE(LOWER(dosage_form), '') = COALESCE(LOWER($3), '')`,
+        [
+          validated.medicine_name,
+          validated.strength || '',
+          validated.dosage_form || '',
+        ]
       );
 
       if (dupCheck.rows.length > 0) {
@@ -110,8 +164,17 @@ export class MedicineController {
 
       const result = await query(
         `INSERT INTO medicines (
-          medicine_name, brand_name, manufacturer_name, composition, strength, dosage_form, therapeutic_class, source, is_active
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'manual', $8)
+          medicine_name,
+          brand_name,
+          manufacturer_name,
+          composition,
+          strength,
+          dosage_form,
+          therapeutic_class,
+          source,
+          is_active
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 'manual', $8)
         RETURNING *`,
         [
           validated.medicine_name,
@@ -132,10 +195,17 @@ export class MedicineController {
       });
     } catch (err: any) {
       if (err.name === 'ZodError') {
-        res.status(400).json({ success: false, error: err.errors[0].message });
+        res.status(400).json({
+          success: false,
+          error: err.errors[0].message,
+        });
         return;
       }
-      res.status(500).json({ success: false, error: err.message || 'Failed to create medicine.' });
+
+      res.status(500).json({
+        success: false,
+        error: err.message || 'Failed to create medicine.',
+      });
     }
   }
 
@@ -174,7 +244,10 @@ export class MedicineController {
       );
 
       if (result.rows.length === 0) {
-        res.status(404).json({ success: false, error: 'Medicine not found.' });
+        res.status(404).json({
+          success: false,
+          error: 'Medicine not found.',
+        });
         return;
       }
 
@@ -185,10 +258,17 @@ export class MedicineController {
       });
     } catch (err: any) {
       if (err.name === 'ZodError') {
-        res.status(400).json({ success: false, error: err.errors[0].message });
+        res.status(400).json({
+          success: false,
+          error: err.errors[0].message,
+        });
         return;
       }
-      res.status(500).json({ success: false, error: err.message || 'Failed to update medicine.' });
+
+      res.status(500).json({
+        success: false,
+        error: err.message || 'Failed to update medicine.',
+      });
     }
   }
 
@@ -201,12 +281,18 @@ export class MedicineController {
       const { is_active } = req.body;
 
       const result = await query(
-        'UPDATE medicines SET is_active = $1, updated_at = NOW() WHERE id = $2 RETURNING id, medicine_name, is_active',
+        `UPDATE medicines
+         SET is_active = $1, updated_at = NOW()
+         WHERE id = $2
+         RETURNING id, medicine_name, is_active`,
         [Boolean(is_active), id]
       );
 
       if (result.rows.length === 0) {
-        res.status(404).json({ success: false, error: 'Medicine not found.' });
+        res.status(404).json({
+          success: false,
+          error: 'Medicine not found.',
+        });
         return;
       }
 
@@ -216,12 +302,15 @@ export class MedicineController {
         data: result.rows[0],
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message || 'Failed to update medicine status.' });
+      res.status(500).json({
+        success: false,
+        error: err.message || 'Failed to update medicine status.',
+      });
     }
   }
 
   /**
-   * Import medicines via CSV file or raw CSV text (Admin only)
+   * Import medicines through CSV (Admin only)
    */
   public static async importMedicinesCsv(req: Request, res: Response): Promise<void> {
     try {
@@ -232,7 +321,10 @@ export class MedicineController {
       } else if (req.body.csv_text) {
         csvContent = req.body.csv_text;
       } else {
-        res.status(400).json({ success: false, error: 'No CSV file or csv_text payload provided.' });
+        res.status(400).json({
+          success: false,
+          error: 'No CSV file or csv_text payload provided.',
+        });
         return;
       }
 
@@ -248,7 +340,10 @@ export class MedicineController {
 
       for (let i = 0; i < records.length; i++) {
         const row = records[i];
-        const medicineName = row.medicine_name || row.name || row.drug_name;
+
+        const medicineName =
+          row.medicine_name || row.name || row.drug_name;
+
         if (!medicineName) {
           skippedCount++;
           errors.push(`Row ${i + 1}: Missing required medicine_name.`);
@@ -265,11 +360,27 @@ export class MedicineController {
         try {
           const insertRes = await query(
             `INSERT INTO medicines (
-              medicine_name, brand_name, manufacturer_name, composition, strength, dosage_form, therapeutic_class, source
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'csv_import')
+              medicine_name,
+              brand_name,
+              manufacturer_name,
+              composition,
+              strength,
+              dosage_form,
+              therapeutic_class,
+              source
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, 'csv_import')
             ON CONFLICT DO NOTHING
             RETURNING id`,
-            [medicineName, brandName, manufacturer, composition, strength, dosageForm, therapeuticClass]
+            [
+              medicineName,
+              brandName,
+              manufacturer,
+              composition,
+              strength,
+              dosageForm,
+              therapeuticClass,
+            ]
           );
 
           if (insertRes.rows.length > 0) {
@@ -294,7 +405,10 @@ export class MedicineController {
         },
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message || 'CSV import failed.' });
+      res.status(500).json({
+        success: false,
+        error: err.message || 'CSV import failed.',
+      });
     }
   }
 }

@@ -44,9 +44,9 @@ export const en = {
     scanHistory: 'Scan History',
   },
   hero: {
-    title: 'Verify Every Medicine. Trust Every Dose.',
-    subheading: 'An intelligent pharmaceutical verification platform powered by QR technology and Ed25519 digital signatures.',
-    scanButton: 'Scan Medicine QR Code',
+    title: 'Every Medicine. One Trusted Verification.',
+    subheading: 'Verify pharmaceutical products through secure QR technology and digital signature verification.',
+    scanButton: 'Verify Medicine',
     manualInputPlaceholder: 'Or enter 36-character Serial ID (UUID)...',
     verifyButton: 'Verify Now',
     learnMore: 'How It Works',

@@ -41,7 +41,7 @@ const ProtectedLayout: React.FC<{ allowedRoles?: string[] }> = ({ allowedRoles }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-emerald-400 text-sm">
+      <div className="min-h-screen bg-white flex items-center justify-center text-[#2f5d38] text-sm">
         Loading MEDISCAN session...
       </div>
     );
@@ -56,7 +56,7 @@ const ProtectedLayout: React.FC<{ allowedRoles?: string[] }> = ({ allowedRoles }
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-950">
+    <div className="flex flex-col min-h-screen bg-white">
       <Navbar />
       <div className="flex flex-1">
         <Sidebar />
@@ -72,7 +72,7 @@ const ProtectedLayout: React.FC<{ allowedRoles?: string[] }> = ({ allowedRoles }
 // Public Layout
 const PublicLayout: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-black text-neutral-100">
+    <div className="flex flex-col min-h-screen bg-white text-[#1d261f]">
       <Navbar />
       <main className="flex-1">
         <Outlet />

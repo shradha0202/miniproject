@@ -1,39 +1,55 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  ShieldCheck,
+  Activity,
+  ArrowRight,
+  BadgeCheck,
+  CheckCircle2,
+  Database,
+  Factory,
+  Key,
+  MonitorCog,
+  PackageCheck,
   QrCode,
   Search,
-  Key,
-  Database,
-  Activity,
-  AlertTriangle,
-  ArrowRight,
-  Sparkles,
-  CheckCircle2,
-  FileText,
+  ShieldCheck,
+  UserRound,
   Volume2,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { QrScannerModal } from '../components/QrScannerModal';
 import { VoiceAssistant } from '../components/VoiceAssistant';
 
-export const Home: React.FC = () => {
-  const { t, language } = useLanguage();
-  const navigate = useNavigate();
+const BlisterStrip: React.FC<{ className?: string; rotate?: string }> = ({
+  className = '',
+  rotate = '0deg',
+}) => (
+  <div
+    className={`blister-strip ${className}`}
+    style={{ transform: `rotate(${rotate})` }}
+    aria-hidden="true"
+  >
+    {[0, 1, 2, 3, 4, 5].map((tablet) => (
+      <span className="blister-pocket" key={tablet}>
+        <span className="blister-tablet" />
+      </span>
+    ))}
+  </div>
+);
 
+export const Home: React.FC = () => {
+  const { t } = useLanguage();
+  const navigate = useNavigate();
   const [serialInput, setSerialInput] = useState('');
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const handleManualVerify = (e: React.FormEvent) => {
     e.preventDefault();
-    if (serialInput.trim()) {
-      let clean = serialInput.trim();
-      if (clean.includes('/verify/')) {
-        clean = clean.split('/verify/')[1].split('?')[0].trim();
-      }
-      navigate(`/verify/${clean}`);
-    }
+    if (!serialInput.trim()) return;
+    const clean = serialInput.includes('/verify/')
+      ? serialInput.split('/verify/')[1].split('?')[0].trim()
+      : serialInput.trim();
+    navigate(`/verify/${clean}`);
   };
 
   const handleScanSuccess = (serialId: string) => {
@@ -41,281 +57,192 @@ export const Home: React.FC = () => {
     navigate(`/verify/${serialId}`);
   };
 
+  const roles = [
+    {
+      title: 'User',
+      description: 'Verify medicines using secure QR codes.',
+      icon: UserRound,
+      link: '/login',
+      action: 'Open User Portal',
+    },
+    {
+      title: 'Admin',
+      description: 'Manage users, manufacturers, reports and regulatory alerts.',
+      icon: MonitorCog,
+      link: '/login',
+      action: 'Open Admin Portal',
+    },
+    {
+      title: 'Manufacturer',
+      description: 'Register medicine batches and manage QR codes.',
+      icon: Factory,
+      link: '/login',
+      action: 'Open Manufacturer Portal',
+    },
+  ];
+
   return (
-    <div className="space-y-24 pb-20">
-      {/* 1. HERO SECTION */}
-      <section className="relative pt-12 sm:pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        {/* Decorative subtle background aura */}
-        <div className="absolute inset-0 -z-10 flex items-center justify-center opacity-30 pointer-events-none">
-          <div className="w-[600px] h-[300px] bg-emerald-500/15 blur-[120px] rounded-full"></div>
-        </div>
+    <div className="home-page">
+      <section className="hero-section" id="home">
+        <div className="hero-ambient hero-ambient-left" />
+        <div className="hero-ambient hero-ambient-right" />
+        <BlisterStrip className="hero-blister-left" rotate="-12deg" />
+        <BlisterStrip className="hero-blister-right" rotate="11deg" />
 
-        {/* Security Principle Pill */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-900 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-6 shadow-sm">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Ed25519 Cryptographic Verification Platform</span>
-        </div>
-
-        {/* Main Heading & Subheading */}
-        <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight max-w-4xl mx-auto">
-          {t.hero.title}
-        </h1>
-        <p className="mt-5 text-base sm:text-lg text-neutral-400 max-w-2xl mx-auto leading-relaxed">
-          {t.hero.subheading}
-        </p>
-
-        {/* Voice summary of page */}
-        <div className="mt-4 flex justify-center">
-          <VoiceAssistant textToSpeak={`${t.hero.title}. ${t.hero.subheading}`} />
-        </div>
-
-        {/* Interactive Verification Bar */}
-        <div className="mt-10 max-w-2xl mx-auto">
-          <div className="p-2 sm:p-2.5 rounded-2xl bg-neutral-900/90 border border-neutral-800 shadow-2xl flex flex-col sm:flex-row items-center gap-2">
-            <button
-              onClick={() => setIsScannerOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all hover:scale-105 shrink-0"
-            >
-              <QrCode className="w-4 h-4" />
-              <span>{t.hero.scanButton}</span>
-            </button>
-
-            <form onSubmit={handleManualVerify} className="w-full flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500" />
-                <input
-                  type="text"
-                  value={serialInput}
-                  onChange={(e) => setSerialInput(e.target.value)}
-                  placeholder={t.hero.manualInputPlaceholder}
-                  className="w-full pl-10 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-xl text-sm text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition-colors"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={!serialInput.trim()}
-                className="px-4 py-2.5 bg-neutral-800 hover:bg-neutral-700 disabled:opacity-40 text-neutral-200 font-semibold text-sm rounded-xl transition-colors shrink-0"
-              >
-                {t.hero.verifyButton}
-              </button>
-            </form>
+        <div className="hero-content">
+          <div className="hero-eyebrow">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Digital medicine verification</span>
           </div>
 
-          {/* Quick Demo Pre-filled links */}
-          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-neutral-400 flex-wrap">
-            <span>Try demo batches:</span>
-            <Link
-              to="/verify"
-              className="text-emerald-400 hover:underline font-mono"
-            >
-              Interactive Verification Sandbox →
+          <h1>{languageTitle(t.hero.title)}</h1>
+          <p className="hero-subheading">
+            Verify pharmaceutical products through secure QR technology and digital signature verification.
+          </p>
+
+          <div className="hero-actions">
+            <button type="button" className="primary-hero-button" onClick={() => setIsScannerOpen(true)}>
+              <QrCode className="w-5 h-5" />
+              {t.common.verifyMedicine}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <Link to="/how-it-works" className="secondary-hero-button">
+              Explore How It Works
             </Link>
           </div>
-        </div>
 
-        {/* Quick action secondary buttons */}
-        <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
-          <Link
-            to="/how-it-works"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-neutral-300 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 hover:text-white transition-colors"
-          >
-            <span>{t.hero.learnMore}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-          <Link
-            to="/login"
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white transition-colors"
-          >
-            {t.common.login}
-          </Link>
-          <Link
-            to="/register-manufacturer"
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
-          >
-            Manufacturer Portal
-          </Link>
+          <VoiceAssistant textToSpeak="Every Medicine. One Trusted Verification. Verify pharmaceutical products through secure QR technology and digital signature verification." />
+
+          <form className="verification-search" onSubmit={handleManualVerify}>
+            <Search className="w-4 h-4 verification-search-icon" />
+            <input
+              type="text"
+              value={serialInput}
+              onChange={(event) => setSerialInput(event.target.value)}
+              placeholder={t.hero.manualInputPlaceholder}
+              aria-label="Medicine serial number"
+            />
+            <button type="submit" disabled={!serialInput.trim()}>
+              Verify
+            </button>
+          </form>
         </div>
       </section>
 
-      {/* 2. SECURITY PRINCIPLE CLARIFICATION */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="p-6 rounded-2xl bg-neutral-950 border border-neutral-800 text-neutral-300 relative overflow-hidden shadow-xl">
-          <div className="flex items-start gap-4">
-            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shrink-0">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <div className="space-y-1.5">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400">
-                {t.common.disclaimerTitle}
-              </h3>
-              <p className="text-sm text-neutral-300 leading-relaxed font-medium">
-                {t.common.securityDisclaimer}
-              </p>
-              <p className="text-xs text-neutral-400 pt-1 leading-relaxed">
-                MEDISCAN provides zero-trust cryptographic origin proof, tamper detection, duplicate scan frequency tracking, and regulatory cross-checks with CDSCO alerts to safeguard patient health.
-              </p>
-            </div>
-          </div>
+      <section className="trust-strip" aria-label="Platform capabilities">
+        <div>
+          <BadgeCheck className="w-5 h-5" />
+          <span>Ed25519 verified</span>
+        </div>
+        <div>
+          <PackageCheck className="w-5 h-5" />
+          <span>Batch traceability</span>
+        </div>
+        <div>
+          <Activity className="w-5 h-5" />
+          <span>Duplicate detection</span>
+        </div>
+        <div>
+          <Volume2 className="w-5 h-5" />
+          <span>English & Kannada</span>
         </div>
       </section>
 
-      {/* 3. ABOUT MEDISCAN */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-5">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-              About The Project
-            </span>
-            <h2 className="text-3xl font-black text-white tracking-tight">
-              Combating Counterfeit Medicines with Pure Math & Cryptography
-            </h2>
-            <p className="text-sm text-neutral-400 leading-relaxed">
-              According to the World Health Organization (WHO), substandard and falsified medical products affect millions of patients globally. Traditional barcodes and packaging holograms can be easily photographed, reprinted, and forged.
-            </p>
-            <p className="text-sm text-neutral-400 leading-relaxed">
-              MEDISCAN implements asymmetric <strong className="text-white">Ed25519 digital signatures</strong> over deterministic canonical batch records. Each manufacturer registers unique cryptographic key pairs, and every medicine package carries a digitally signed serial token that can be independently verified on any smartphone browser in seconds.
-            </p>
-            <div className="pt-2 flex items-center gap-6 text-xs text-neutral-300">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Zero Trust Architecture</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>CDSCO NSQ Cross-Checks</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-2.5">
-              <Key className="w-6 h-6 text-emerald-400" />
-              <h4 className="text-base font-bold text-white">Ed25519 Signing</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                High-speed elliptic curve cryptography ensuring absolute non-repudiation of manufacturer origin.
-              </p>
-            </div>
-            <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-2.5">
-              <Database className="w-6 h-6 text-emerald-400" />
-              <h4 className="text-base font-bold text-white">Master Catalogue</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Centralized formulation records mapped from official Indian Pharma datasets.
-              </p>
-            </div>
-            <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-2.5">
-              <Activity className="w-6 h-6 text-emerald-400" />
-              <h4 className="text-base font-bold text-white">Velocity Checks</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Detects cloning attacks when a genuine QR code is replicated on thousands of counterfeit units.
-              </p>
-            </div>
-            <div className="p-6 rounded-2xl bg-neutral-900 border border-neutral-800 space-y-2.5">
-              <Volume2 className="w-6 h-6 text-emerald-400" />
-              <h4 className="text-base font-bold text-white">Voice & Kannada</h4>
-              <p className="text-xs text-neutral-400 leading-relaxed">
-                Accessible to every citizen through bilingual voice synthesis in English and Kannada.
-              </p>
-            </div>
-          </div>
+      <section className="role-section" id="portals">
+        <div className="section-heading">
+          <span>Choose your portal</span>
+          <h2>Built for every role in the verification journey</h2>
+        </div>
+        <div className="role-grid">
+          {roles.map((role) => {
+            const Icon = role.icon;
+            return (
+              <article className="role-card" key={role.title}>
+                <div className="role-icon">
+                  <Icon className="w-7 h-7" />
+                </div>
+                <h3>{role.title}</h3>
+                <p>{role.description}</p>
+                <Link to={role.link} className="role-link">
+                  {role.action}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </article>
+            );
+          })}
         </div>
       </section>
 
-      {/* 4. HOW IT WORKS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-12">
-        <div className="space-y-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-            {t.nav.howItWorks}
-          </span>
-          <h2 className="text-3xl font-black text-white tracking-tight">
-            How The MEDISCAN Verification System Works
-          </h2>
-          <p className="text-sm text-neutral-400 max-w-xl mx-auto">
-            A seamless four-step verification loop connecting pharmaceutical regulators, manufacturers, and patients.
+      <section className="about-section" id="about">
+        <div className="about-copy">
+          <span className="section-kicker">About MediScan</span>
+          <h2>Pharmaceutical trust, verified with cryptography</h2>
+          <p>
+            MediScan connects manufacturers, regulators and consumers through tamper-resistant
+            digital records and QR-based medicine verification.
           </p>
+          <div className="about-checks">
+            <span><CheckCircle2 className="w-5 h-5" /> Digital origin proof</span>
+            <span><CheckCircle2 className="w-5 h-5" /> CDSCO NSQ cross-checks</span>
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-left">
-          <div className="p-6 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-3 relative">
-            <span className="text-3xl font-black text-emerald-500/20">01</span>
-            <h4 className="text-sm font-bold text-white">Manufacturer Approval</h4>
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              Regulatory admins verify drug manufacturing licenses and generate unique Ed25519 signing keys.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-3 relative">
-            <span className="text-3xl font-black text-emerald-500/20">02</span>
-            <h4 className="text-sm font-bold text-white">Batch Cryptographic Signing</h4>
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              Approved manufacturers register batch dates, generating deterministic canonical payload signatures.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-3 relative">
-            <span className="text-3xl font-black text-emerald-500/20">03</span>
-            <h4 className="text-sm font-bold text-white">QR Code Generation</h4>
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              Unique high-density QR codes containing secure verification tokens are printed on medicine packaging.
-            </p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-3 relative">
-            <span className="text-3xl font-black text-emerald-500/20">04</span>
-            <h4 className="text-sm font-bold text-white">Instant Citizen Verification</h4>
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              Consumers scan the QR code via mobile camera. The backend runs 12 verification checks in milliseconds.
-            </p>
-          </div>
+        <div className="technology-grid" id="technology">
+          <article>
+            <Key className="w-6 h-6" />
+            <h3>Ed25519 signing</h3>
+            <p>Secure digital signatures establish record integrity and manufacturer origin.</p>
+          </article>
+          <article>
+            <Database className="w-6 h-6" />
+            <h3>Batch catalogue</h3>
+            <p>Registered formulation and batch records remain traceable across the platform.</p>
+          </article>
+          <article>
+            <Activity className="w-6 h-6" />
+            <h3>Velocity monitoring</h3>
+            <p>Repeated or abnormal scans help detect suspected duplicate packaging.</p>
+          </article>
+          <article>
+            <Volume2 className="w-6 h-6" />
+            <h3>Accessible by voice</h3>
+            <p>English and Kannada support help citizens understand verification results.</p>
+          </article>
         </div>
       </section>
 
-      {/* 5. WHY MEDICINE VERIFICATION MATTERS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="p-8 sm:p-12 rounded-3xl bg-neutral-900 border border-neutral-800 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-rose-400">
-              The Counterfeit Threat
-            </span>
-            <h3 className="text-2xl font-black text-white">Why Verification Matters</h3>
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              Fake antibiotics, contaminated syrups, and expired formulations cause thousands of preventable deaths and treatment failures every year.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-neutral-950 border border-neutral-800/80 space-y-2">
-            <span className="text-2xl font-black text-rose-400">1 in 10</span>
-            <h4 className="text-sm font-bold text-white">Substandard Medical Products</h4>
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              WHO reports that an estimated 10.5% of medicines in low- and middle-income nations fail quality benchmarks.
-            </p>
-          </div>
-
-          <div className="p-5 rounded-2xl bg-neutral-950 border border-neutral-800/80 space-y-2">
-            <span className="text-2xl font-black text-emerald-400">100%</span>
-            <h4 className="text-sm font-bold text-white">Mathematical Origin Integrity</h4>
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              Ed25519 digital signatures guarantee that authorized records cannot be forged without the private key.
-            </p>
-          </div>
+      <section className="how-section" id="how-it-works">
+        <div className="section-heading">
+          <span>How it works</span>
+          <h2>A clear verification journey</h2>
+        </div>
+        <div className="how-grid">
+          {[
+            ['01', 'Manufacturer approval', 'Regulators verify the manufacturer and activate signing credentials.'],
+            ['02', 'Batch registration', 'Authorized batches are signed using a secure Ed25519 private key.'],
+            ['03', 'QR generation', 'A unique verification code is linked to each medicine serial.'],
+            ['04', 'Citizen verification', 'Consumers scan or enter the serial to review the verification result.'],
+          ].map(([number, title, copy]) => (
+            <article key={number}>
+              <span>{number}</span>
+              <h3>{title}</h3>
+              <p>{copy}</p>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* 6. CALL TO ACTION & FOOTER PREVIEW */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-        <h2 className="text-3xl font-black text-white">Ready to verify your medicine?</h2>
-        <p className="text-sm text-neutral-400 max-w-lg mx-auto">
-          Scan the QR code on your blister pack, bottle, or carton to instantly verify origin, expiry, and regulatory alerts.
-        </p>
-        <button
-          onClick={() => setIsScannerOpen(true)}
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm shadow-xl shadow-emerald-500/25 transition-all hover:scale-105"
-        >
+      <section className="cta-section">
+        <div>
+          <span>Start verification</span>
+          <h2>Ready to verify a medicine?</h2>
+          <p>Scan a product QR code or enter its serial number to check its registered record.</p>
+        </div>
+        <button type="button" onClick={() => setIsScannerOpen(true)}>
           <QrCode className="w-5 h-5" />
-          <span>Launch Camera QR Scanner</span>
+          Verify Medicine
         </button>
       </section>
 
-      {/* QR Scanner Modal */}
       <QrScannerModal
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
@@ -324,3 +251,9 @@ export const Home: React.FC = () => {
     </div>
   );
 };
+
+function languageTitle(title: string) {
+  return title === 'Verify Every Medicine. Trust Every Dose.'
+    ? 'Every Medicine. One Trusted Verification.'
+    : title;
+}
